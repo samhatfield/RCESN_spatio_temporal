@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# %%
+
 import numpy as np
 import scipy.sparse as sparse
 import pandas as pd
@@ -87,18 +89,26 @@ def predict(A, Win, res_params, x, Wout):
         x = np.squeeze(np.asarray(x1))
     return output, x
 
+# %%
+
 
 print("Reading input data")
 dataf = pd.read_csv('3tier_lorenz_v3.csv', header=None)
 data = np.transpose(np.array(dataf))
 
+# %%
+
 # Train reservoir
 print("Training reservoir")
 x, Wout, A, Win = train_reservoir(res_params, data[:, shift_k:shift_k+res_params['train_length']])
 
+# %%
+
 # Prediction
 print("Running prediction")
 output, _ = predict(A, Win, res_params, x, Wout)
+
+# %%
 
 print("Saving output")
 np.save('Expansion_2step_back' + 'R_size_train_' + str(res_params['train_length']) + '_Rd_' +
