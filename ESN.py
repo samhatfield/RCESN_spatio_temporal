@@ -43,7 +43,7 @@ def generate_reservoir(size, radius, degree):
 def reservoir_layer(A, Win, input, res_params):
     states = np.zeros((res_params['N'], res_params['train_length']))
     for i in range(res_params['train_length']-1):
-        states[:, i+1] = np.tanh(np.dot(A, states[:, i]) + np.dot(Win, input[:, i]))
+        states[:, i+1] = np.tanh(A @ states[:, i] + Win @ input[:, i])
     return states
 
 
@@ -74,9 +74,9 @@ def train(res_params, states, data):
     for j in range(2, np.shape(states2)[0]-2):
         if (np.mod(j, 2) == 0):
             states2[j, :] = (states[j-1, :]*states[j-2, :]).copy()
-    U = np.dot(states2, states2.transpose()) + idenmat
+    U = states2 @ states2.transpose() + idenmat
     Uinv = np.linalg.inv(U)
-    Wout = np.dot(Uinv, np.dot(states2, data.transpose()))
+    Wout = Uinv @ (states2 @ data.T)
     return Wout.transpose()
 
 
@@ -97,9 +97,9 @@ def predict(A, Win, res_params, x, Wout):
                 x_aug[j] = x[j-1]*x[j-2]
 
         # Apply Wout to x_aug to form prediction
-        output[:, i] = np.dot(Wout, x_aug)
+        output[:, i] = Wout @ x_aug
 
-        x = np.tanh(np.dot(A, x) + np.dot(Win, output[:, i]))
+        x = np.tanh(A @ x + Win @ output[:, i])
     return output, x
 
 
